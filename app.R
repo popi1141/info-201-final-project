@@ -9,16 +9,23 @@ netflix_orig <- read.csv("netflix.csv", stringsAsFactors = FALSE) %>%
   head(108) %>% 
   mutate(group = "Netflix") %>% 
   mutate(major_genre = Major_Genre)
+
 netflix_shows <- read.csv("netflix_shows.csv", stringsAsFactors = FALSE) %>% 
   distinct() %>% 
   head(108) %>% 
   mutate(viewer_score = user.rating.score) %>% 
+  mutate(release_data = release.year) %>% 
   mutate(group = "Netflix")
+
 hulu_shows <- read.csv("hulu.csv", stringsAsFactors = FALSE) %>% 
   select(major_genre:release_data) %>% 
   mutate(group = "Hulu")
+
 both_shows <- full_join(netflix_shows, hulu_shows)
 both_originals <- full_join(netflix_orig, hulu_shows)
+both_shows_year <- full_join(netflix_shows,hulu_shows)
+
+
 
 # ui goes here
 
@@ -107,6 +114,23 @@ server <- function(input, output) {
 }
 
 
+#3 Plots the number of shows Netflix release vs the number of shows Hulu 
+#released in the given year range 
+
+both_shows_year <- filter(both_shows_year, release_data >= input$year_range[1] &
+                    release_data <= input$year_range[2]) 
+
+    ggplot(both_shows_year, aes(x = release_data)) +
+    geom_bar(aes(fill = group),
+             position = "dodge") +
+    scale_x_continuous(limits=c(input$year_range[1], input$year_range[2])) +
+    scale_fill_manual("Platform", 
+                      values = c("Hulu" = "green", "Netflix" = "red")) +
+    labs(title = "Number of Shows by Year",
+         x = "Year",
+         y = "Number of Shows",
+         fill = "Platform") 
+    
 
 # Run the application 
 shinyApp(ui = ui, server = server)
