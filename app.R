@@ -7,7 +7,8 @@ library(ggplot2)
 # read data files and clean them up
 netflix_orig <- read.csv("netflix.csv", stringsAsFactors = FALSE) %>% 
   head(108) %>% 
-  mutate(group = "Netflix")
+  mutate(group = "Netflix") %>% 
+  mutate(major_genre = Major_Genre)
 netflix_shows <- read.csv("netflix_shows.csv", stringsAsFactors = FALSE) %>% 
   distinct() %>% 
   head(108) %>% 
@@ -17,6 +18,7 @@ hulu_shows <- read.csv("hulu.csv", stringsAsFactors = FALSE) %>%
   select(major_genre:release_data) %>% 
   mutate(group = "Hulu")
 both_shows <- full_join(netflix_shows, hulu_shows)
+both_originals <- full_join(netflix_orig, hulu_shows)
 
 # ui goes here
 
@@ -27,16 +29,23 @@ both_shows <- full_join(netflix_shows, hulu_shows)
 
 server <- function(input, output) {
   
+  ## MOST LIKELY NEED TO FACTOR THESE INPUT FILTERS INTO PLOTS
   # filter data to display only shows within the input year range.
   both_shows <- filter(both_shows, 
-                       release.year >= input$year[1],
-                       release.year <= input$year[2])
+                       release.year >= input$year_range[1],
+                       release.year <= input$year_range[2])
   
   # filter data to display only shows within the input review score range.
   both_shows <- filter(both_shows,
-                       viewer_score >= input$review[1],
-                       viewer_score <= input$review[2])
-   
+                       viewer_score >= input$review_range[1],
+                       viewer_score <= input$review_range[2])
+  
+  # filter data to display only shows in the chosen age rating group
+  both_shows <- filter(both_shows, rating == input$rating)
+  
+  # filter data to display only shows in the chosen genre
+  both_shows <- filter(both_shows, major_genre == input$genre) 
+  
   # static bar chart for age rating shows
   output$agePlot <- renderPlot({
     ggplot(both_shows, aes(rating)) +
@@ -65,8 +74,36 @@ server <- function(input, output) {
     return(both_ratings)
   })
   
-  # reactive histogram about diversity of genres between platforms
+  # reactive bar chart about diversity of genres between platforms
+  output$genrePlot <- renderTable({
+    ggplot(both_originals, aes(x = major_genre)) +
+      geom_bar(aes(fill = group),
+               position = "dodge") +
+      scale_fill_manual("Platform", 
+                        values = c("Hulu" = "green", "Netflix" = "red")) +
+      labs(title = "Number of Shows by Genre",
+           x = "Genre",
+           y = "Number of Shows",
+           fill = "Platform") +
+      theme(axis.text.x = element_text(angle=30,margin = 
+                                         margin(0.5, unit = "cm"), 
+                                       vjust = 1, size = 5.5))
+  })
   
+  # reactive table about diversit of genres between platforms
+  output$ageTable <- renderTable({
+    hulu_genres <- hulu_shows %>% 
+      group_by(major_genre) %>% 
+      summarize("Hulu" = n())
+    
+    netflix_genres <- netflix_orig %>% 
+      group_by(major_genre) %>% 
+      summarize("Netflix" = n())
+    
+    both_genres <- full_join(hulu_genres, netflix_genres)
+    both_genres[is.na(both_ratings)] <- 0
+    return(both_genres)
+  })
 }
 
 
