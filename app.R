@@ -57,13 +57,13 @@ ui <- dashboardPage (
       menuItem("Age Comparison", tabName = "dashboard", icon = icon("user-circle")),
       menuItem("Genre Diversity", icon = icon("film"), tabName = "genre"),
       menuItem("Nostalgia Meter", tabName = "nostalgia", icon = icon("clock")),
-      menuItem("Placeholder", tabName = "placeholder", icon = icon("question-circle")),
+      menuItem("Original Reviews", tabName = "reviews", icon = icon("question-circle")),
       #Year Range
       sliderInput("year_range",
                   "Years",
                   min = 1940,
                   max = 2017,
-                  value = c(1940,2016)),
+                  value = c(1940,2017)),
       #Reviews
       sliderInput("review_range",
                   "Review Scores",
@@ -88,9 +88,9 @@ ui <- dashboardPage (
       tabItem(tabName = "genre",
               plotOutput("genrePlot")),
       tabItem(tabName = "nostalgia",
-              tableOutput("releasedPlot")),
-      tabItem(tabName = "placeholder",
-              tableOutput("originalPlot"))
+              plotOutput("releasedPlot")),
+      tabItem(tabName = "reviews",
+              plotOutput("originalPlot"))
     )
   )
 )
@@ -115,6 +115,7 @@ server <- function(input, output) {
   # filter data to display only shows in the chosen genre
   # both_shows <- filter(both_shows, major_genre == input$genre)
   
+  # Question 1 - plot
   # static bar chart for age rating shows
   output$agePlot <- renderPlot({
     if (input$rating != "All") {
@@ -132,6 +133,7 @@ server <- function(input, output) {
            fill = "Platform")
   })
   
+  # Question 1 - table
   # static data frame for age rating shows
   output$ageTable <- renderTable({
     hulu_ratings <- hulu_shows %>% 
@@ -147,6 +149,7 @@ server <- function(input, output) {
     return(both_ratings)
   })
   
+  # Question 2 - Plot
   # reactive bar chart about diversity of genres between platforms (originals)
   output$genrePlot <- renderPlot({
     if (input$genre != "All") {
@@ -167,6 +170,7 @@ server <- function(input, output) {
                                        vjust = 1, size = 5.5))
   })
   
+  # question 2: table
   # reactive table about diversity of genres between platforms
   output$genreTable <- renderTable({
     hulu_genres <- hulu_shows %>% 
@@ -181,49 +185,49 @@ server <- function(input, output) {
     both_genres[is.na(both_ratings)] <- 0
     return(both_genres)
   })
-}
-
-
-#3 Plots the number of shows Netflix release vs the number of shows Hulu 
-#released in the given year range 
-
-both_shows_year <- filter(both_shows_year, release_data >= input$year_range[1] &
-                    release_data <= input$year_range[2]) 
-
-output$releasedPlot <- renderPlot({
-  ggplot(both_shows_year, aes(x = release_data)) +
-    geom_bar(aes(fill = group),
-             position = "dodge") +
-    scale_x_continuous(limits=c(input$year_range[1], input$year_range[2])) +
-    scale_fill_manual("Platform", 
-                      values = c("Hulu" = "green", "Netflix" = "red")) +
-    labs(title = "Number of Shows by Year",
-         x = "Year",
-         y = "Number of Shows",
-         fill = "Platform")
-})
-
-
-# question 4
-output$originalPlot <- renderPlot({
-  both_shows <- filter(both_originals,
-                       viewer_score >= input$review_range[1],
-                       viewer_score <= input$review_range[2])
-  factor = cut(both_originals$viewer_score, 
-               breaks = c(-Inf, 20, 40, 60, 80, Inf),
-               labels = c("0-20", "21-40", "41-60", "61-80", "81-100"))
-  both_originals <- mutate(both_originals, factor = factor)
   
-  ggplot(both_originals, aes(x = factor)) + 
-    geom_bar(aes(fill = group),
-             position = "dodge") +
-    scale_fill_manual("Platform", 
-                      values = c("Hulu" = "green", "Netflix" = "red")) +
-    labs(title = "Number of Shows by User Rating",
-         x = "User Ratings",
-         y = "Number of Shows",
-         fill = "Platform")
-})
+  #3 Plots the number of shows Netflix release vs the number of shows Hulu 
+  #released in the given year range 
+  
+  
+  
+  output$releasedPlot <- renderPlot({
+    both_shows_year <- filter(both_shows_year, release_data >= input$year_range[1] &
+                                release_data <= input$year_range[2]) 
+    
+    ggplot(both_shows_year, aes(x = release_data)) +
+      geom_bar(aes(fill = group),
+               position = "dodge") +
+      scale_x_continuous(limits=c(input$year_range[1], input$year_range[2])) +
+      scale_fill_manual("Platform", 
+                        values = c("Hulu" = "green", "Netflix" = "red")) +
+      labs(title = "Number of Shows by Year",
+           x = "Year",
+           y = "Number of Shows",
+           fill = "Platform")
+  })
+  
+  # question 4 - plot
+  output$originalPlot <- renderPlot({
+    both_originals <- filter(both_originals,
+                         viewer_score >= input$review_range[1],
+                         viewer_score <= input$review_range[2])
+    factor = cut(both_originals$viewer_score, 
+                 breaks = c(-Inf, 20, 40, 60, 80, Inf),
+                 labels = c("0-20", "21-40", "41-60", "61-80", "81-100"))
+    both_originals <- mutate(both_originals, factor = factor)
+    
+    ggplot(both_originals, aes(x = factor)) + 
+      geom_bar(aes(fill = group),
+               position = "dodge") +
+      scale_fill_manual("Platform", 
+                        values = c("Hulu" = "green", "Netflix" = "red")) +
+      labs(title = "Number of Shows by User Rating",
+           x = "User Ratings",
+           y = "Number of Shows",
+           fill = "Platform")
+  })
+}
 
 # Run the application 
 shinyApp(ui = ui, server = server)
