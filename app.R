@@ -8,7 +8,8 @@ library(ggplot2)
 netflix_orig <- read.csv("netflix.csv", stringsAsFactors = FALSE) %>% 
   head(108) %>% 
   mutate(group = "Netflix") %>% 
-  mutate(major_genre = Major_Genre)
+  mutate(major_genre = Major_Genre) %>% 
+  mutate(viewer_score = IMDB_Rating)
 
 netflix_shows <- read.csv("netflix_shows.csv", stringsAsFactors = FALSE) %>% 
   distinct() %>% 
@@ -120,7 +121,8 @@ server <- function(input, output) {
 both_shows_year <- filter(both_shows_year, release_data >= input$year_range[1] &
                     release_data <= input$year_range[2]) 
 
-    ggplot(both_shows_year, aes(x = release_data)) +
+output$releasedPlot <- renderPlot({
+  ggplot(both_shows_year, aes(x = release_data)) +
     geom_bar(aes(fill = group),
              position = "dodge") +
     scale_x_continuous(limits=c(input$year_range[1], input$year_range[2])) +
@@ -129,7 +131,31 @@ both_shows_year <- filter(both_shows_year, release_data >= input$year_range[1] &
     labs(title = "Number of Shows by Year",
          x = "Year",
          y = "Number of Shows",
-         fill = "Platform") 
+         fill = "Platform")
+})
+
+
+# question 4
+output$originalPlot <- renderPlot({
+  factor = cut(both_originals$viewer_score, 
+               breaks = c(-Inf, 20, 40, 60, 80, Inf),
+               labels = c("0-20", "21-40", "41-60", "61-80", "81-100"))
+  both_originals <- mutate(both_originals, factor = factor)
+  
+  ggplot(both_originals, aes(x = factor)) + 
+    geom_bar(aes(fill = group),
+             position = "dodge") +
+    scale_fill_manual("Platform", 
+                      values = c("Hulu" = "green", "Netflix" = "red")) +
+    labs(title = "Number of Shows by User Rating",
+         x = "User Ratings",
+         y = "Number of Shows",
+         fill = "Platform")
+})
+
+
+    
+
     
 
 # Run the application 
