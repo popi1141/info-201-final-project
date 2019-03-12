@@ -85,7 +85,8 @@ ui <- dashboardPage (
                   "Years",
                   min = 1963,
                   max = 2017,
-                  value = c(1963,2017)),
+                  value = c(1963,2017),
+                  step = 1, sep = ""),
       #Reviews
       sliderInput("review_range",
                   "Review Scores",
@@ -108,7 +109,8 @@ ui <- dashboardPage (
     tabItems(
       #Age Stuff
       tabItem(tabName = "ageplot",
-              plotOutput("agePlot")),
+              plotOutput("agePlot"), br(), p("The age rating most prevalent on Hulu is TV-14 with 65 shows with this rating, followed by TV-PG with 18 shows holding this rating. 
+The most prevalent rating on Netflix is also TV-14 with 40 shows holding this rating followed by TV-MA with 39 shows.")),
       tabItem(tabName = "agetable",
               tableOutput("ageTable")),
       #Genre Stuff
@@ -118,8 +120,9 @@ ui <- dashboardPage (
               tableOutput("genreTable")),
       #Release Stuff
       tabItem(tabName = "releasedplot",
-              plotOutput("releasedPlot")),
+              plotOutput("releasedPlot"), textOutput("textplot")),
       tabItem(tabName = "releasedtable",
+              textOutput("texttable"),
               tableOutput("releasedTable")),
       #Originals Stuff
       tabItem(tabName = "originalplot",
@@ -226,6 +229,10 @@ server <- function(input, output) {
            fill = "Platform")
   })
   
+  output$textplot <- renderText({
+    paste0("This graph shows the number of original shows from ", input$year_range[1], " to ", input$year_range[2], ".")
+  })
+  
   # question 3 - table
   output$releasedTable <- renderTable({
     hulu_released <- hulu_shows %>% 
@@ -242,6 +249,10 @@ server <- function(input, output) {
                            release_data <= input$year_range[2])
     names(both_released)[1] <- "Year"
     return(both_released)
+  })
+  
+  output$texttable <- renderText({
+    paste0("This table shows the number of original shows from ", input$year_range[1], " to ", input$year_range[2], ".")
   })
   
   # question 4 - plot
