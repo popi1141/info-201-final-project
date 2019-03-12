@@ -33,7 +33,6 @@ genres <- unique(c("All", hulu_shows$major_genre)) # genres
 
 both_shows <- full_join(netflix_shows, hulu_shows)
 both_originals <- full_join(netflix_orig, hulu_shows)
-both_shows_year <- full_join(netflix_shows,hulu_shows)
 
 # Creates the Logo for the Header
 app_logo <- shinyDashboardLogoDIY(
@@ -61,9 +60,9 @@ ui <- dashboardPage (
       #Year Range
       sliderInput("year_range",
                   "Years",
-                  min = 1940,
+                  min = 1963,
                   max = 2017,
-                  value = c(1940,2017)),
+                  value = c(1963,2017)),
       #Reviews
       sliderInput("review_range",
                   "Review Scores",
@@ -167,7 +166,7 @@ server <- function(input, output) {
            fill = "Platform") +
       theme(axis.text.x = element_text(angle=30,margin = 
                                          margin(0.5, unit = "cm"), 
-                                       vjust = 1, size = 5.5))
+                                       vjust = 1, size = 8))
   })
   
   # question 2: table
@@ -182,20 +181,16 @@ server <- function(input, output) {
       summarize("Netflix" = n())
     
     both_genres <- full_join(hulu_genres, netflix_genres)
-    both_genres[is.na(both_ratings)] <- 0
+    both_genres[is.na(both_genres)] <- 0
     return(both_genres)
   })
   
-  #3 Plots the number of shows Netflix release vs the number of shows Hulu 
-  #released in the given year range 
-  
-  
-  
+  # question 3 - plot
   output$releasedPlot <- renderPlot({
-    both_shows_year <- filter(both_shows_year, release_data >= input$year_range[1] &
+    both_shows <- filter(both_shows, release_data >= input$year_range[1] &
                                 release_data <= input$year_range[2]) 
     
-    ggplot(both_shows_year, aes(x = release_data)) +
+    ggplot(both_shows, aes(x = release_data)) +
       geom_bar(aes(fill = group),
                position = "dodge") +
       scale_x_continuous(limits=c(input$year_range[1], input$year_range[2])) +
@@ -205,6 +200,22 @@ server <- function(input, output) {
            x = "Year",
            y = "Number of Shows",
            fill = "Platform")
+  })
+  
+  # question 3 - table
+  output$releasedTable <- renderTable({
+    hulu_released <- hulu_shows %>% 
+      group_by(release_data) %>% 
+      summarize("Hulu" = n())
+    
+    netflix_released <- netflix_shows %>% 
+      group_by(release_data) %>% 
+      summarize("Netflix" = n())
+    
+    both_released <- full_join(hulu_released, netflix_released)
+    both_released[is.na(both_released)] <- 0
+    names(both_released)[1] <- "Year"
+    return(both_released)
   })
   
   # question 4 - plot
@@ -226,6 +237,22 @@ server <- function(input, output) {
            x = "User Ratings",
            y = "Number of Shows",
            fill = "Platform")
+  })
+  
+  # question 4 - table
+  output$originalTable <- renderTable({
+    hulu_original <- hulu_shows %>% 
+      group_by(viewer_score) %>% 
+      summarize("Hulu" = n())
+    
+    netflix_original <- netflix_shows %>% 
+      group_by(viewer_score) %>% 
+      summarize("Netflix" = n())
+    
+    both_original <- full_join(hulu_original, netflix_original)
+    both_original[is.na(both_original)] <- 0
+    names(both_original)[1] <- "Review Score"
+    return(both_released)
   })
 }
 
