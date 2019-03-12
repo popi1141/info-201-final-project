@@ -187,19 +187,8 @@ server <- function(input, output) {
   })
 
 
-
-
-#3 Plots the number of shows Netflix released vs the number of shows Hulu 
-#released in the given year range 
-
-both_shows_year <- filter(both_shows_year, release_data >= input$year_range[1] &
-                    release_data <= input$year_range[2]) 
-
-
-  
   #3 Plots the number of shows Netflix release vs the number of shows Hulu 
   #released in the given year range 
-  
   
   
   output$releasedPlot <- renderPlot({
