@@ -186,6 +186,7 @@ server <- function(input, output) {
   })
   
   # question 3 - plot
+
   output$releasedPlot <- renderPlot({
     both_shows <- filter(both_shows, release_data >= input$year_range[1] &
                                 release_data <= input$year_range[2]) 
