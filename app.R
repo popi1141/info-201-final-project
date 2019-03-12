@@ -109,23 +109,33 @@ ui <- dashboardPage (
     tabItems(
       #Age Stuff
       tabItem(tabName = "ageplot",
-              plotOutput("agePlot"), br(), p("The age rating most prevalent on Hulu is TV-14 with 65 shows with this rating, followed by TV-PG with 18 shows holding this rating. 
+              p("Which age rating group is more prevalent in each platform?"),
+              br(),
+              plotOutput("agePlot"),
+              br(), 
+              p("The age rating most prevalent on Hulu is TV-14 with 65 shows with this rating, followed by TV-PG with 18 shows holding this rating. 
 The most prevalent rating on Netflix is also TV-14 with 40 shows holding this rating followed by TV-MA with 39 shows.")),
       tabItem(tabName = "agetable",
               tableOutput("ageTable")),
       #Genre Stuff
       tabItem(tabName = "genreplot",
+              p("What is the difference in genre diversity between platforms?"),
+              br(),
               plotOutput("genrePlot")),
       tabItem(tabName = "genretable",
               tableOutput("genreTable")),
       #Release Stuff
       tabItem(tabName = "releasedplot",
+              p("Which platform is better for nostalgia?"),
+              br(),
               plotOutput("releasedPlot"), textOutput("textplot")),
       tabItem(tabName = "releasedtable",
               textOutput("texttable"),
               tableOutput("releasedTable")),
       #Originals Stuff
       tabItem(tabName = "originalplot",
+              p("Which platform produces better reviewed series?"),
+              br(),
               plotOutput("originalPlot")),
       tabItem(tabName = "originaltable",
               tableOutput("originalTable"))
@@ -230,7 +240,7 @@ server <- function(input, output) {
   })
   
   output$textplot <- renderText({
-    paste0("This graph shows the number of original shows from ", input$year_range[1], " to ", input$year_range[2], ".")
+    paste0("This graph shows the number of shows from ", input$year_range[1], " to ", input$year_range[2], ".")
   })
   
   # question 3 - table
@@ -252,7 +262,7 @@ server <- function(input, output) {
   })
   
   output$texttable <- renderText({
-    paste0("This table shows the number of original shows from ", input$year_range[1], " to ", input$year_range[2], ".")
+    paste0("This table shows the number of shows from ", input$year_range[1], " to ", input$year_range[2], ".")
   })
   
   # question 4 - plot
