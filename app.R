@@ -11,13 +11,16 @@ library(shinydashboard)
 library(dashboardthemes)
 #install_github("nik01010/dashboardthemes")
 
-# read data files and clean them up
-netflix_orig <- read.csv("netflix.csv", stringsAsFactors = FALSE) %>% 
+#Reads the Data for Netflix Originals
+netflix_orig <- read.csv("netflix.csv", stringsAsFactors = FALSE) 
+colnames(netflix_orig)[1] <- "Major_Genre"
+netflix_orig <- netflix_orig %>%
   head(108) %>% 
   mutate(group = "Netflix") %>% 
   mutate(major_genre = Major_Genre) %>% 
   mutate(viewer_score = IMDB_Rating)
 
+#Reads the Data for Netflix Shows in General
 netflix_shows <- read.csv("netflix_shows.csv", stringsAsFactors = FALSE) %>% 
   distinct() %>% 
   head(108) %>% 
@@ -26,16 +29,18 @@ netflix_shows <- read.csv("netflix_shows.csv", stringsAsFactors = FALSE) %>%
   mutate(group = "Netflix")
 ratings <- unique(c("All", netflix_shows$rating))
 
+#Reads the Data for Hulu Shows
 hulu_shows <- read.csv("hulu.csv", stringsAsFactors = FALSE) %>% 
   select(major_genre:release_data) %>% 
   mutate(group = "Hulu")
 genres <- unique(c("All", hulu_shows$major_genre)) # genres
 
+#Joins the Data Set
 both_shows <- full_join(netflix_shows, hulu_shows)
 both_originals <- full_join(netflix_orig, hulu_shows)
 both_shows_year <- full_join(netflix_shows,hulu_shows)
 
-# Creates the Logo for the Header
+#Creates the Logo for the Header
 app_logo <- shinyDashboardLogoDIY(
   boldText = "Netflix vs Hulu",
   mainText = "",
@@ -47,17 +52,35 @@ app_logo <- shinyDashboardLogoDIY(
   badgeBorderRadius = 3
 )
 
-# Define UI for application that draws a histogram
 ui <- dashboardPage (
-  dashboardHeader(
-    title = app_logo
-  ),
+  
+  #Creates the Header w/ Logo
+  dashboardHeader(title = app_logo),
+  
+  #Creates the Sidebar
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Age Comparison", tabName = "dashboard", icon = icon("user-circle")),
-      menuItem("Genre Diversity", icon = icon("film"), tabName = "genre"),
-      menuItem("Nostalgia Meter", tabName = "nostalgia", icon = icon("clock")),
-      menuItem("Original Reviews", tabName = "reviews", icon = icon("question-circle")),
+      
+      #Age Menu
+      menuItem("Age Comparison", tabName = "", icon = icon("user-circle"),
+        menuSubItem("Plot", tabName = "ageplot", icon = icon("bar-chart")),
+        menuSubItem("Table", tabName = "agetable", icon = icon("th"))),
+      
+      #Genre Menu
+      menuItem("Genre Diversity", tabName = "", icon = icon("film"), 
+               menuSubItem("Plot", tabName = "genreplot", icon = icon("bar-chart")),
+               menuSubItem("Table", tabName = "genretable", icon = icon("th"))),
+      
+      #Nostalgia Menu
+      menuItem("Nostalgia Meter", tabName = "", icon = icon("clock"),
+        menuSubItem("Plot", tabName = "releasedplot", icon = icon("bar-chart")),
+        menuSubItem("Table", tabName = "releasedtable", icon = icon("th"))),
+      
+      #Originals Table
+      menuItem("Original Reviews", tabName = "", icon = icon("question-circle"),
+        menuSubItem("Plot", tabName = "originalsplot", icon = icon("bar-chart")),
+        menuSubItem("Table", tabName = "originalstable", icon = icon("th"))),
+      
       #Year Range
       sliderInput("year_range",
                   "Years",
@@ -80,43 +103,37 @@ ui <- dashboardPage (
                   genres)
     )
   ),
+  #Generates the Body
   dashboardBody(
-    shinyDashboardThemes(theme = "grey_light"),
+    shinyDashboardThemes(theme = "poor_mans_flatly"),
     tabItems(
-      tabItem(tabName = "dashboard",
+      #Age Stuff
+      tabItem(tabName = "ageplot",
               plotOutput("agePlot")),
-      tabItem(tabName = "genre",
+      tabItem(tabName = "agetable",
+              tableOutput("ageTable")),
+      #Genre Stuff
+      tabItem(tabName = "genreplot",
               plotOutput("genrePlot")),
-      tabItem(tabName = "nostalgia",
+      tabItem(tabName = "genretable",
+              tableOutput("genreTable")),
+      #Release Stuff
+      tabItem(tabName = "releasedplot",
               plotOutput("releasedPlot")),
-      tabItem(tabName = "reviews",
-              plotOutput("originalPlot"))
+      tabItem(tabName = "releasedtable",
+              tableOutput("releasedTable")),
+      #Originals Stuff
+      tabItem(tabName = "originalsplot",
+              plotOutput("originalPlot")),
+      tabItem(tabName = "originalstable",
+              tableOutput("originalsTable"))
     )
   )
 )
 
 server <- function(input, output) {
   
-  ## reactive filter functions below
-  
-  # filter data to display only shows within the input year range.
-  # both_shows <- filter(both_shows,
-  #                      release.year >= input$year_range[1],
-  #                      release.year <= input$year_range[2])
-
-  # filter data to display only shows within the input review score range.
-  # both_shows <- filter(both_shows,
-  #                      viewer_score >= input$review_range[1],
-  #                      viewer_score <= input$review_range[2])
-
-  # filter data to display only shows in the chosen age rating group
-  # both_shows <- filter(both_shows, rating == input$rating)
-
-  # filter data to display only shows in the chosen genre
-  # both_shows <- filter(both_shows, major_genre == input$genre)
-  
-  # Question 1 - plot
-  # static bar chart for age rating shows
+  #Question 1 - plot
   output$agePlot <- renderPlot({
     if (input$rating != "All") {
       both_shows <- filter(both_shows, rating == input$rating)
