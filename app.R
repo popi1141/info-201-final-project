@@ -77,8 +77,8 @@ ui <- dashboardPage (
       
       #Originals Table
       menuItem("Original Reviews", tabName = "", icon = icon("question-circle"),
-        menuSubItem("Plot", tabName = "originalsplot", icon = icon("bar-chart")),
-        menuSubItem("Table", tabName = "originalstable", icon = icon("th"))),
+        menuSubItem("Plot", tabName = "originalplot", icon = icon("bar-chart")),
+        menuSubItem("Table", tabName = "originaltable", icon = icon("th"))),
       
       #Year Range
       sliderInput("year_range",
@@ -122,10 +122,10 @@ ui <- dashboardPage (
       tabItem(tabName = "releasedtable",
               tableOutput("releasedTable")),
       #Originals Stuff
-      tabItem(tabName = "originalsplot",
+      tabItem(tabName = "originalplot",
               plotOutput("originalPlot")),
-      tabItem(tabName = "originalstable",
-              tableOutput("originalsTable"))
+      tabItem(tabName = "originaltable",
+              tableOutput("originalTable"))
     )
   )
 )
@@ -162,6 +162,9 @@ server <- function(input, output) {
     
     both_ratings <- full_join(hulu_ratings, netflix_ratings)
     both_ratings[is.na(both_ratings)] <- 0
+    if (input$rating != "All") {
+      both_ratings <- filter(both_ratings, rating == input$rating)
+    }
     return(both_ratings)
   })
   
@@ -199,6 +202,9 @@ server <- function(input, output) {
     
     both_genres <- full_join(hulu_genres, netflix_genres)
     both_genres[is.na(both_genres)] <- 0
+    if (input$genre != "All") {
+      both_genres <- filter(both_genres, major_genre == input$genre)
+    }
     return(both_genres)
   })
   
@@ -232,6 +238,8 @@ server <- function(input, output) {
     
     both_released <- full_join(hulu_released, netflix_released)
     both_released[is.na(both_released)] <- 0
+    both_released <- filter(both_released, release_data >= input$year_range[1] &
+                           release_data <= input$year_range[2])
     names(both_released)[1] <- "Year"
     return(both_released)
   })
@@ -269,8 +277,11 @@ server <- function(input, output) {
     
     both_original <- full_join(hulu_original, netflix_original)
     both_original[is.na(both_original)] <- 0
+    both_original <- filter(both_original,
+                             viewer_score >= input$review_range[1],
+                             viewer_score <= input$review_range[2])
     names(both_original)[1] <- "Review Score"
-    return(both_released)
+    return(both_original)
   })
 }
 
