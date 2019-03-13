@@ -114,7 +114,12 @@ ui <- dashboardPage (
               plotOutput("agePlot"),
               br(), 
               p("The age rating most prevalent on Hulu is TV-14 with 65 shows with this rating, followed by TV-PG with 18 shows holding this rating. 
-The most prevalent rating on Netflix is also TV-14 with 40 shows holding this rating followed by TV-MA with 39 shows.")),
+The most prevalent rating on Netflix is also TV-14 with 40 shows holding this rating followed by TV-MA with 39 shows. In addition to this Netflix had shows
+                that were rated R, Unrated or Not Rated where Hulu had no shows in these categories. Based upon this it seems that the platforms 
+                may be aimed at different audiences and that Netflix has an older audience in mind than Hulu. Hulu comparativley had 5 shows that were
+                rated G where Netflix had none. With this in mind we encourage users to think about who is the streaming service for? If it is for younger 
+                audiences Hulu may be a better option since it has a greater number of child friendly shows, if the audience is older than Netflix has a wider
+                range of ratings and content that may appeal to a more mature audience.")),
       tabItem(tabName = "agetable",
               tableOutput("ageTable")),
       #Genre Stuff
@@ -141,7 +146,8 @@ The most prevalent rating on Netflix is also TV-14 with 40 shows holding this ra
               p("Based on the above data if one is looking for older shows we recommend Hulu. Hulu had 12 show offerings that were released prior to the 2000s whereas
                 Netflix did not. The oldest show was Sesame Street which was first released back in 1963. If one is looking for more modern shows
                 we would recommend Netflix as majority of their content (108 shows sampled) were produced post 2000 with a marked increase in content produced from 
-                2015 onwards.")),
+                2015 onwards. This increase in content production is expected as other streaming services such as Amazon Prime are crowding in on the new market in order to compete Netflix needs to
+                offer original content that can only be viewed on their platform so they can distinguish and hold out aganist the competition.")),
       tabItem(tabName = "releasedtable",
               textOutput("texttable"),
               tableOutput("releasedTable")),
