@@ -121,14 +121,27 @@ The most prevalent rating on Netflix is also TV-14 with 40 shows holding this ra
       tabItem(tabName = "genreplot",
               p("What is the difference in genre diversity between platforms?"),
               br(),
-              plotOutput("genrePlot")),
+              plotOutput("genrePlot"),
+              br(),
+              p("We found that although Netflix and Hulu had some genre's that overlapped between the two platforms they were coded differently in the data.
+        Some genre's weren't comparabale for example Netflix had a genre simply dubbed 'Marvel' that referred to their original series like Daredevil
+                which Hulu simply did not have. In short the although there were overlaps in some of the more common genres like Comedy we found that each platform
+                tends to have a slightly different offering in their genres as can be seen in the graph above. Hulu had 11 specific genres including three Netflix
+                did not have listed: Action and Adventure, Anime, and Science Fiction. Whereas Netflix had 10 genres two that Hulu did not have which were 
+                Foreign Language and Marvel. The problem we found is that each of these streaming platforms has a different method of denoting genre categories and
+                some shows may fall into multiple categories but be sorted into only one. This is a limitation of the data format.")),
       tabItem(tabName = "genretable",
               tableOutput("genreTable")),
       #Release Stuff
       tabItem(tabName = "releasedplot",
               p("Which platform is better for nostalgia?"),
               br(),
-              plotOutput("releasedPlot"), textOutput("textplot")),
+              plotOutput("releasedPlot"), textOutput("textplot"),
+              br(),
+              p("Based on the above data if one is looking for older shows we recommend Hulu. Hulu had 12 show offerings that were released prior to the 2000s whereas
+                Netflix did not. The oldest show was Sesame Street which was first released back in 1963. If one is looking for more modern shows
+                we would recommend Netflix as majority of their content (108 shows sampled) were produced post 2000 with a marked increase in content produced from 
+                2015 onwards.")),
       tabItem(tabName = "releasedtable",
               textOutput("texttable"),
               tableOutput("releasedTable")),
@@ -136,7 +149,16 @@ The most prevalent rating on Netflix is also TV-14 with 40 shows holding this ra
       tabItem(tabName = "originalplot",
               p("Which platform produces better reviewed series?"),
               br(),
-              plotOutput("originalPlot")),
+              plotOutput("originalPlot"),
+              br(),
+              p("Based on the above data analyzed it appears that Hulu has a greater number
+                of better reviewed series. By better reviewed series we mean series that recieved
+                audience scores in the range of 81-100. Hulu had 77 shows that fell within this range
+whereas Netflix had only 58 that fell within this range. One important limitation of this analysis is 
+                that Netflix had 39 shows that simply were not reviewed and were missing audience scores.
+Additionally, this analysis did not have subanzlyze ratings by genre. It's possible that one platform produces
+better reviewed shows in certain genres which may be a deciding factor in determing which platform the user wants
+                to pay for.")),
       tabItem(tabName = "originaltable",
               tableOutput("originalTable"))
     )
