@@ -5,8 +5,8 @@ account: josephyunzz
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 782740
-bundleId: 1932234
+bundleId: 1937061
 url: https://josephyunzz.shinyapps.io/info-201-final-project/
-when: 1552350802.26598
+when: 1552497576.93877
 asMultiple: FALSE
 asStatic: FALSE
